@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 import voyageai
 
 from db import get_conn, create_schema, embedding_to_sql
+from embeddings import embed_document
 
 BASE_URL = "https://www.sentenzeappalti.it"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; StudioLegaleBot/0.1; ricerca interna)"}
@@ -72,9 +73,7 @@ def parse_article(url: str) -> dict:
 def index_article(dati: dict):
     if not dati["testo"]:
         return
-    embedding = voyage_client.embed(
-        [dati["testo"]], model="voyage-3", input_type="document"
-    ).embeddings[0]
+    embedding = embed_document(voyage_client, dati["testo"])
 
     conn = get_conn()
     try:
@@ -99,6 +98,7 @@ if __name__ == "__main__":
             dati = parse_article(url)
             print(f"  - {dati['riferimento']}")
             index_article(dati)
+            time.sleep(21)  # pace to stay under Voyage's free-tier 3 requests/minute limit
         except Exception as e:
             print(f"  ERRORE su {url}: {e}")
         time.sleep(SLEEP_BETWEEN_REQUESTS)
