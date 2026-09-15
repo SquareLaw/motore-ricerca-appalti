@@ -98,7 +98,8 @@ if __name__ == "__main__":
             dati = parse_article(url)
             print(f"  - {dati['riferimento']}")
             index_article(dati)
-            time.sleep(21)  # pace to stay under Voyage's free-tier 3 requests/minute limit
+            time.sleep(0.3)  # light pacing, kept as a courtesy to the API
         except Exception as e:
             print(f"  ERRORE su {url}: {e}")
         time.sleep(SLEEP_BETWEEN_REQUESTS)
+
