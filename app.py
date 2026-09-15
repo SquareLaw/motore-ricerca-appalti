@@ -13,6 +13,7 @@ import voyageai
 import anthropic
 
 from db import get_conn, embedding_to_sql
+from embeddings import embed_query
 
 app = FastAPI()
 
@@ -21,7 +22,7 @@ claude_client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 
 def embed(testo: str) -> list[float]:
-    return voyage_client.embed([testo], model="voyage-3", input_type="query").embeddings[0]
+    return embed_query(voyage_client, testo)
 
 
 def retrieve(query: str, tipo: str, top_k: int = 4) -> list[dict]:
