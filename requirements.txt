@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pg8000
+pydantic
+voyageai
+anthropic
+requests
+beautifulsoup4
+normattiva2md
