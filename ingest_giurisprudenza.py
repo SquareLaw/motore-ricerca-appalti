@@ -22,10 +22,13 @@ SLEEP_BETWEEN_REQUESTS = 1.5
 voyage_client = voyageai.Client(api_key=os.environ["VOYAGE_API_KEY"])
 
 
-def get_article_urls_from_tag(tag_slug: str, max_pages: int = 2) -> list[str]:
+def get_article_urls_from_category(max_pages: int = 20) -> list[str]:
+    """Crawls the general 'Sentenze' archive (all topics), not a single tag -
+    this is what gives broad coverage across appalti pubblici topics instead
+    of narrowing to one subject the way a single tag would."""
     urls = []
     for page in range(1, max_pages + 1):
-        page_url = f"{BASE_URL}/tag/{tag_slug}/" if page == 1 else f"{BASE_URL}/tag/{tag_slug}/?paged={page}"
+        page_url = f"{BASE_URL}/sentenze/" if page == 1 else f"{BASE_URL}/sentenze/?paged={page}"
         resp = requests.get(page_url, headers=HEADERS, timeout=20)
         if resp.status_code != 200:
             break
@@ -90,8 +93,12 @@ def index_article(dati: dict):
 
 if __name__ == "__main__":
     create_schema()
-    tag = "accesso-agli-atti"
-    urls = get_article_urls_from_tag(tag, max_pages=2)
+    # Broad coverage across all appalti pubblici topics (not one narrow tag).
+    # MAX_PAGES=20 covers roughly the most recent 300-400 case summaries;
+    # raise it for more history, at the cost of a longer run and more
+    # embedding calls.
+    MAX_PAGES = 20
+    urls = get_article_urls_from_category(max_pages=MAX_PAGES)
     print(f"Trovati {len(urls)} articoli")
     for url in urls:
         try:
