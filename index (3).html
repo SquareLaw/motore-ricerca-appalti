@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Ricerca giurisprudenza - Prototipo</title>
+<style>
+  body { font-family: sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+  textarea { width: 100%; height: 70px; font-size: 15px; padding: 8px; }
+  button { padding: 10px 20px; font-size: 15px; margin-top: 8px; cursor: pointer; }
+  #answer { white-space: pre-wrap; background: #f5f5f5; padding: 16px; border-radius: 8px; margin-top: 20px; }
+  .sources-block { margin-top: 16px; font-size: 13px; }
+  .sources-block h4 { margin-bottom: 6px; }
+  .sources-block a { display: block; margin-bottom: 4px; }
+  #loading { display: none; color: #888; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h2>Ricerca giurisprudenza - Prototipo</h2>
+  <p>Scrivi una domanda di ricerca (es. "oscuramento offerta tecnica non impugnata")</p>
+  <textarea id="query" placeholder="Scrivi qui la tua domanda... (es. appalti pubblici e riservatezza)"></textarea><br>
+  <button onclick="cercaOra()">Cerca</button>
+  <div id="loading">Ricerca in corso...</div>
+  <div id="answer"></div>
+  <div id="norme-block" class="sources-block"></div>
+  <div id="giuris-block" class="sources-block"></div>
+  <div id="commenti-block" class="sources-block"></div>
+
+<script>
+function renderSourceList(containerId, titolo, items) {
+  const div = document.getElementById(containerId);
+  div.innerHTML = '';
+  if (!items || !items.length) return;
+  const h4 = document.createElement('h4');
+  h4.textContent = titolo;
+  div.appendChild(h4);
+  items.forEach(item => {
+    const a = document.createElement('a');
+    a.href = item.url;
+    a.target = '_blank';
+    a.textContent = item.riferimento;
+    div.appendChild(a);
+  });
+}
+
+async function cercaOra() {
+  const query = document.getElementById('query').value.trim();
+  if (!query) return;
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('answer').textContent = '';
+  document.getElementById('norme-block').innerHTML = '';
+  document.getElementById('giuris-block').innerHTML = '';
+  document.getElementById('commenti-block').innerHTML = '';
+
+  const resp = await fetch('/search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query })
+  });
+  const data = await resp.json();
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('answer').textContent = data.summary;
+
+  renderSourceList('norme-block', 'Norme (Codice dei Contratti Pubblici)', data.norme);
+  renderSourceList('giuris-block', 'Giurisprudenza', data.giurisprudenza);
+  renderSourceList('commenti-block', 'Commenti (fonte secondaria)', data.commenti);
+}
+</script>
+</body>
+</html>
