@@ -80,4 +80,4 @@ if __name__ == "__main__":
     for art in articoli:
         print(f"  - {art['riferimento']}")
         index_article(art)
-        time.sleep(21)  # pace to stay under Voyage's free-tier 3 requests/minute limit
+        time.sleep(0.3)  # light pacing, kept as a courtesy to the API
