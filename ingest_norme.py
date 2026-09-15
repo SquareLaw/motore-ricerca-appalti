@@ -18,8 +18,10 @@ law's structure is (parts / titles / chapters / articles).
 import os
 import re
 import subprocess
+import time
 
 from db import get_conn, create_schema, embedding_to_sql
+from embeddings import embed_document
 import voyageai
 
 NORMATTIVA_URL = "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legislativo:2023-03-31;36"
@@ -52,9 +54,7 @@ def split_by_article(markdown_text: str) -> list[dict]:
 
 def index_article(articolo: dict):
     doc_id = f"norma-{articolo['riferimento']}"
-    embedding = voyage_client.embed(
-        [articolo["testo"]], model="voyage-3", input_type="document"
-    ).embeddings[0]
+    embedding = embed_document(voyage_client, articolo["testo"])
 
     conn = get_conn()
     try:
@@ -80,3 +80,4 @@ if __name__ == "__main__":
     for art in articoli:
         print(f"  - {art['riferimento']}")
         index_article(art)
+        time.sleep(21)  # pace to stay under Voyage's free-tier 3 requests/minute limit
