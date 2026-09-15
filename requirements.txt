@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-psycopg2-binary
-pydantic
-voyageai
-anthropic
-requests
-beautifulsoup4
-normattiva2md
