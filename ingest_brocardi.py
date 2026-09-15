@@ -45,6 +45,9 @@ def find_next_url(soup: BeautifulSoup, current_url: str) -> str | None:
             href = a["href"]
             if href.startswith("http"):
                 return href
+            if href.startswith("/"):
+                # site-root-relative link, e.g. "/nuovo-codice-appalti/.../art2.html"
+                return f"https://www.brocardi.it{href}"
             # relative link - resolve against the article's own directory
             base = current_url.rsplit("/", 1)[0]
             return f"{base}/{href.lstrip('/')}"
